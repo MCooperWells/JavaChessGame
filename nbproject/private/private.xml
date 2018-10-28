@@ -3,9 +3,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/wells/Documents/Game%20Programming/Fall%202018/G204%20-%20Java%20(Game%20Programming%204)/ChessGameEclipse/src/ca/chess/core/GameManager.java</file>
-            <file>file:/C:/Users/wells/Documents/Game%20Programming/Fall%202018/G204%20-%20Java%20(Game%20Programming%204)/ChessGameEclipse/src/ca/chess/core/GameBoard.java</file>
-            <file>file:/C:/Users/wells/Documents/Game%20Programming/Fall%202018/G204%20-%20Java%20(Game%20Programming%204)/ChessGameEclipse/src/ca/chess/core/GameScene.java</file>
+            <file>file:/C:/Users/wells/Documents/Game%20Programming/Fall%202018/Repositories/G204_Java/src/ca/chess/core/GameManager.java</file>
+            <file>file:/C:/Users/wells/Documents/Game%20Programming/Fall%202018/Repositories/G204_Java/src/ca/chess/core/MenuScene.java</file>
+            <file>file:/C:/Users/wells/Documents/Game%20Programming/Fall%202018/Repositories/G204_Java/src/ca/chess/core/GameScene.java</file>
+            <file>file:/C:/Users/wells/Documents/Game%20Programming/Fall%202018/Repositories/G204_Java/src/ca/chess/core/Main.java</file>
         </group>
     </open-files>
 </project-private>

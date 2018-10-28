@@ -1,9 +1,13 @@
 package ca.chess.core;
 
+import ca.chess.core.data.GameData;
+
 public class GameManager {
 
     private Window window;
     private Scene scene;
+    private GameData data;
+    
     private boolean gameRunning;
 
     public GameManager() {
@@ -25,63 +29,19 @@ public class GameManager {
             return false;
         }
 
-        //Create a new scene, passing it the window created before
-        scene = new GameScene(window);
+        //Create a new scene, passing it the window and the game data
+        scene = new GameScene(window, null); //TODO data.LoadGame()
         if (scene == null) {
             OnDestroy();
             return false;
         }
 
-        //Allow the user to load a previous game or start a new one
-        int mode = scene.MainMeun();
-
-        //Switch on the mode, either making a new game or loaded an older one
-        switch (mode) {
-            case 0:
-                //If the main menu returned 1, then it will call the scenes OnCreate
-                if (scene.OnCreate() == false) {
-                    OnDestroy();
-                    return false;
-                }
-                break;
-                
-            case 1:
-                //If the main menu returns 2, then it will call the load game function
-                if (scene.LoadGame(1) == false) {
-                    OnDestroy();
-                    return false;
-                }
-                break;
-            
-            //TODO: add the ability to load other saved files
-            case 2:
-                
-                break;
-            case 3:
-                
-                break;
-            case 4:
-                
-                 break;
-            case 5:
-                
-                 break;
-            case 6:
-                
-                 break;
-            case 7:
-                
-                 break;
-            case 8:
-                
-                 break;
-            case 9:
-                break;
-                
-            default:
-                //Error message??
-                break;
+        //Call OnCreate, if it fails, stop the program.
+        if (scene.OnCreate() == false) {
+        	OnDestroy();         
+        	return false;
         }
+
 
         gameRunning = true;
         return true;

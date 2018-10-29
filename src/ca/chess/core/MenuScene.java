@@ -13,19 +13,16 @@ public class MenuScene implements Scene{
 	@Override
 	public void OnDestroy() {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void Update() {
 		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void Render() {
 		// TODO Auto-generated method stub
-		
 	}
 	
 	

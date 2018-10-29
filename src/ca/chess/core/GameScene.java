@@ -440,7 +440,9 @@ public class GameScene implements Scene {
 
             //If everything worked properly, return true
             return true;
-        } catch (Exception e) {
+        } 
+        
+        catch (Exception e) {
             //If anything went wrong, print out some error messages and return false
             System.out.println(e.getMessage());
             return false;

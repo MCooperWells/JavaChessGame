@@ -3,7 +3,6 @@ package ca.chess.core;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-import ca.chess.core.data.GameData;
 import ca.chess.pieces.Bishop;
 import ca.chess.pieces.ChessPiece;
 import ca.chess.pieces.King;
@@ -14,105 +13,85 @@ import ca.chess.pieces.Rook;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 
-import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
 public class GameScene implements Scene {
 
+    //Variables -----------------------------------------
+    //This will be the main gameboard, instantiated below
     GameBoard board;
 
+    //Create a new scanner to take in Input
     Scanner scanText = new Scanner(System.in);
     int[] positionInput = new int[4];
 
-    private Window window;
-
-    private GameData data;
-
     //Variable used to save the current players turn
     private boolean player2Turn;
-    
+
     //Variable used to save the current players turn
     private int savedPlayerTurn;
 
-    public GameScene(Window _window, GameData _data) {
-
-        window = _window;
-
-        if (_data == null) {
-
-            data = new GameData();
-
-        } else {
-
-            data = _data;
-
-        }
-
+    //Constructor --------------------------------------
+    public GameScene() {
+        savedPlayerTurn = 1;
+        player2Turn = false;
     }
 
+    //MainMenu ----------------------------------------------------------------------------------------------------------------
     /*When the game begins, this will be the first thing the user will see. It will ask them to input a value between 1 and 2
           which is used to determine if a new game will be started or the previous game will be loaded from a file
           It will return an int for gameMode, which will be used to either call OnCreate() or LoadGame() */
     @Override
-    public int MainMeun() {
+    public int MainMeun() throws InputMismatchException {
 
-        int gameMode = 0;
+        //Reference to the gameMode, default is zero
+        int gameMode = -1;
 
+        //Title screen
         System.out.println("Welcome to Chess Sim 2020, a game by Noah and Mike");
 
+        //Forloop to make sure the user inputs the correct values 
         for (int i = 0; i < 1;) {
 
-            System.out.print("\nEnter 0 to start a new game or 1 to 9 to load a previous game: ");
-            gameMode = scanText.nextInt();
+            System.out.print("\nEnter 0 to start a new game or 1 - 9 to load a previous game: ");
 
-            //Possible to add multiple save files
-            if (gameMode >= 0 && gameMode <= 9) {
-
-                System.out.println("Starting the game!");
-                i++;
-
-            } else {
-                System.out.println("Error: please try again!");
+            //Try and allow the user to input an int
+            try {
+                gameMode = scanText.nextInt();
+                //Load a new game if the user input 0
+                if (gameMode == 0) {
+                    System.out.println("Starting the game!");
+                    i++;
+                } //Load a previous saved game if the int input was between 1 and 9
+                else if (gameMode >= 1 && gameMode <= 9) {
+                    System.out.println("Loading game save " + gameMode);
+                    i++;
+                } //Let the user try 
+                else {
+                    System.out.println("Error: please make the number is between 0 to 9");
+                }
+            } //catch any mistakes they make
+            catch (InputMismatchException e) {
+                System.out.println("Error: " + e + ". Please make you enter a number");
+                scanText.next();
             }
+
+            
         }
         return gameMode;
     }
 
-    //Create chess pieces using the GameData.
+    // Create the game --------------------------------------------------------------------------------------
+    //This is where new functionality can be added when things get more complicated 
     @Override
     public boolean OnCreate() {
-        
-        //When creating the gameScene, check if it was player1 or player2s turn
-        if(savedPlayerTurn == 2)
-            player2Turn = true;
-        else
-            player2Turn = false;
-        
-        //Finally, once the two arrays of chess pieces are setup, create the Board using player1 and player 2
-        board = new GameBoard(data.player1, data.player2);
-
         return true;
     }
 
     @Override
-    public void OnDestroy() {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
     public void Update() {
-        // TODO Auto-generated method stub
-
-    }
-
-    @Override
-    public void Render() {
-        //When the game runs, first Print the board!
-        board.PrintBoard();
-
         /*While the game is running, prompt the current player for an X and Y location of the piece they wish to move, then 
              * the X and Y location of the position they wish to move their piece to. There are several checks that occur here, first 
              * making sure the player input the correct values for an X and Y position twice (1st for the current location and 2nd for the 
@@ -132,11 +111,8 @@ public class GameScene implements Scene {
             //If the game saved when it was player2's turn, then skip player1s turn only on the first pass through this loop
             if (player2Turn) {
                 player2Turn = false;
-            } 
-            
-            //Otherwise, continue as normal
-            else 
-            {
+            } //Otherwise, continue as normal
+            else {
                 //First, save who's turn it is
                 savedPlayerTurn = playerTurn;
                 //Let the players know who's turn it is and then ask the player to input the current location 
@@ -147,39 +123,61 @@ public class GameScene implements Scene {
                 for (int i = 0; i < 4;) {
 
                     try {
+                        //Get the next input from the user, make sure that it is an int and throw an exception if it is wrong
                         positionInput[i] = scanText.nextInt();
-                        if (positionInput[i] == 9) {
-                            for (int j = 0; j < 1;) {
-                                System.out.print("Select a save slot between 1 to 9: ");
-                                int fileNum = scanText.nextInt();
-                                if (fileNum >= 1 && fileNum <= 9) {
-                                    try {
-                                        this.SaveGame(fileNum);
-                                    } catch (Exception e) {
 
+                        //If the input was 9, then prompt the user to save the game
+                        if (positionInput[i] == 9) {
+                            //Safety check loop for saving
+                            for (int j = 0; j < 1;) {
+                                //Ask the user where they would like to save the game
+                                System.out.print("Select a save slot between 1 to 9: ");
+
+                                try //Take in an int (checking that the input was an int first)
+                                {
+                                    int fileNum = scanText.nextInt();
+                                    //if the int is in the proper range, then save the game
+                                    if (fileNum >= 1 && fileNum <= 9) {
+                                        try //Try and save the game 
+                                        {
+                                            this.SaveGame(fileNum);
+
+                                        } //Make sure there were no errors when saving the game
+                                        catch (Exception e) {
+                                            System.out.println("Save game failed, try again");
+                                            scanText.nextInt();
+                                        }
+                                        j++;
+                                    } //If the int was beyond the correct range, let the user try again
+                                    else {
+                                        System.out.println("Error! Please enter a value between 1 to 9");
                                     }
-                                    j++;
-                                } else {
-                                    System.out.println("Error! Please enter a value between 1 to 9");
-                                    System.out.print("Next: ");
+                                } catch (InputMismatchException e) {
+                                    //Warn the player to input the correct value
+                                    System.out.println("Error: Please enter an int between 0 and 7");
+                                    scanText.nextInt();
                                 }
+
                             }
                             System.out.print("Next: ");
-                        } else if (positionInput[i] > 7 || positionInput[i] < 0) {
-                            System.out.println("Error! please make sure value is between 0 to 7");
+                        } //Make sure the user input a value between 0 to 7
+                        else if (positionInput[i] > 7 || positionInput[i] < 0) {
+                            System.out.println("Error: Value beyond accepted range. Please enter values between 0 to 7");
                             System.out.print("Next: ");
-                        } else {
+                        } //If the input value was good, then move the loop forward
+                        else {
                             i++;
                         }
                     } //Catch any input mismatches 
                     catch (InputMismatchException e) {
                         //Warn the player to input the correct value
-                        System.out.println("Error: Please enter an int between 0 and 7");
+                        System.out.println("Error: " + e + ". Please enter an whole number between 0 and 7");
                         scanText.next();
                         //e.printStackTrace();
                     }
                 }
 
+                //CORE MOVEMENT CHECKS -----------------------------------------------------------------------------------------------------------------------------------
                 //Check if the location of the piece is accurate
                 if (board.pieces[positionInput[0]][positionInput[1]] != null && board.pieces[positionInput[0]][positionInput[1]].playerNum == playerTurn) {
                     //Check if the piece selected can move to the destination
@@ -222,9 +220,18 @@ public class GameScene implements Scene {
                 }
             }
         }
+    }
+
+    @Override
+    public void Render() {
+        //When the game runs, first Print the board!
+        board.PrintBoard();
+
+        
 
     }
 
+    //Save Game function. Takes in an int and allows the user to save the game
     @Override
     public void SaveGame(int _fileNum) throws IOException {
         String fileToSave;
@@ -265,6 +272,7 @@ public class GameScene implements Scene {
         System.out.println("Making a save file!");
 
         if (!fileToSave.equalsIgnoreCase("")) {
+
             //Create the fileWriter and pass it the file name that was selected above
             try (BufferedWriter out = new BufferedWriter(new FileWriter(fileToSave))) {
 
@@ -324,11 +332,11 @@ public class GameScene implements Scene {
             }
             System.out.println("Game Saved!");
         }
-
     }
 
+    //Load the game. This can either load a new game (int of 0) or 1 of 9 saved files
     @Override
-    public boolean LoadGame(int savedFile) {
+    public boolean LoadGame(int savedFile) throws IOException {
 
         String fileToLoad;
 
@@ -376,17 +384,27 @@ public class GameScene implements Scene {
             int numPieces = Integer.parseInt(in.readLine());
 
             //DEBUG ONLY
-            System.out.println(numPieces);
-
+            //System.out.println(numPieces);
             //and use those to create the arrays for each player
             ChessPiece[] loadedPieces = new ChessPiece[numPieces];
-            
+
             //Next, Load player Turn and set the boolean "Player2Turn" which is used to skip player1s turn
-            int playerTurn = Integer.parseInt(in.readLine());
-            if(playerTurn == 2)
-                player2Turn = true;
-            else
-                player2Turn = false;
+            savedPlayerTurn = Integer.parseInt(in.readLine());
+            System.out.println("Player Turn: " + savedPlayerTurn);
+
+            //Set the bool Player2Turn, which is used to load the game to a state where it is player2s turn
+            switch(savedPlayerTurn) {
+                case 1:
+                    player2Turn = false;
+                    break;
+                case 2:
+                    player2Turn = true;
+                    break;
+                default:
+                    break;
+            }
+            
+            System.out.println("Player Turn: " + player2Turn);
 
             //Setup an iterator for the while loop
             int pieceNum = 0;
@@ -398,7 +416,7 @@ public class GameScene implements Scene {
                 int playerNum = Integer.parseInt(line.substring(2, 3));
                 int pieceX = Integer.parseInt(line.substring(4, 5));
                 int pieceY = Integer.parseInt(line.substring(6, 7));
-                System.out.println(pieceType + " " + playerNum + " " + pieceX + " " + pieceY + " ");
+                //System.out.println(pieceType + " " + playerNum + " " + pieceX + " " + pieceY + " ");
 
                 //Switch on the piece type, which will allow the game to add the different pieces required 
                 switch (pieceType) {
@@ -435,11 +453,8 @@ public class GameScene implements Scene {
                 pieceNum++;
             }
 
-            //Create the board using player1 and player2 arrays
+            //Create the board using the array of Pieces
             board = new GameBoard(loadedPieces);
-
-            //If everything worked properly, return true
-            return true;
         } 
         
         catch (Exception e) {
@@ -447,6 +462,6 @@ public class GameScene implements Scene {
             System.out.println(e.getMessage());
             return false;
         }
-
+        return true;
     }
 }

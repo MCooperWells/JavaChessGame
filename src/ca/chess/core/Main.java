@@ -9,13 +9,13 @@ public class Main {
         GameManager manager = new GameManager();
 
         //If the GameManager fails to initialize anything, lets not run the program...
-        if (manager.OnCreate() == false) {
-            throw new CriticalSystemErrorException();
-        } 
-        
-        else { //If there are no errors, run the manager.
+        if (manager.OnCreate() != false) { //If there are no errors, run the manager.
 
             manager.Run();
+        } 
+        
+        else {
+            throw new CriticalSystemErrorException();
         }
     }
 }

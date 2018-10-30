@@ -1,12 +1,11 @@
 package ca.chess.core;
 
 import ca.chess.core.data.GameData;
+import java.io.IOException;
 
 public class GameManager {
 
-    private Window window;
     private Scene scene;
-    private GameData data;
     
     private boolean gameRunning;
 
@@ -16,33 +15,38 @@ public class GameManager {
 
     public boolean OnCreate() {
 
-        //First, make a new window for the game to be rendered to and check that it was made properly
-        window = new Window();
-        if (window == null) {
-            OnDestroy();
-            return false;
-        }
-
-        //Then, call that windows create function, checking if it was created successfully
-        if (window.OnCreate(1280, 920) == false) {
-            OnDestroy();
-            return false;
-        }
-
-        //Create a new scene, passing it the window and the game data
-        scene = new GameScene(window, null); //TODO data.LoadGame()
+        //Create a new scene, which calls its default constructor
+        scene = new GameScene(); 
+        
+        //Make sure that the new game scene was created properly
         if (scene == null) {
             OnDestroy();
             return false;
         }
-
+        
+        //Store a reference to the game that will be loaded as the temp Int "gameMode"
+        int gameMode = scene.MainMeun();
+        
+        //Pass that int into the scene.LoadGame() method
+        try{
+            if(scene.LoadGame(gameMode) == false)
+            {
+                OnDestroy();
+                return false;
+            }
+        }
+        
+        //Catch any errors while loading the game
+        catch(IOException e)
+        {
+            System.out.println(e.getMessage() + "Error while loading save game");
+        }
+        
         //Call OnCreate, if it fails, stop the program.
         if (scene.OnCreate() == false) {
-        	OnDestroy();         
-        	return false;
+            OnDestroy();         
+            return false;
         }
-
-
         gameRunning = true;
         return true;
     }
@@ -51,8 +55,8 @@ public class GameManager {
 
         //Master loop
         while (gameRunning) {
-            scene.Update();
             scene.Render();
+            scene.Update();
         }
 
     }

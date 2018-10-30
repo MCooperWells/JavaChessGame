@@ -7,21 +7,6 @@ public class GameBoard {
     //Create the board array of pieces which will be a 8x8 array (board is 8 to 8 square)
     ChessPiece[][] pieces;
 
-    //When making the board (Constructor) take in two arrays of pieces
-    public GameBoard(ChessPiece[] _player1, ChessPiece[] _player2) {
-
-        //Set the array of pieces to be equal to a new 2D array of size 8x8
-        pieces = new ChessPiece[8][8];
-
-        //loop through the size of the player and for each location in the array (there are 16 pieces per player)
-        //add each piece to the board
-        for (int i = 0; i < _player1.length; i++) {
-            //Add the piece of player 1, index "i" to the board based on that pieces internal position
-            //This internal position is set in the game manager class
-            pieces[_player1[i].getPosition()[0]][_player1[i].getPosition()[1]] = _player1[i];
-            pieces[_player2[i].getPosition()[0]][_player2[i].getPosition()[1]] = _player2[i];
-        }
-    }
     
     //Overloaded Constructor that takes in only one array of pieces, when the game is loaded from memory
     public GameBoard(ChessPiece[] _loadedPieces) {

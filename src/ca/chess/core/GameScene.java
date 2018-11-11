@@ -16,6 +16,8 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import javax.swing.JFrame;
+
 
 public class GameScene implements Scene {
 
@@ -27,14 +29,22 @@ public class GameScene implements Scene {
     Scanner scanText = new Scanner(System.in);
     int[] positionInput = new int[4];
 
+    
     //Variable used to save the current players turn
     private boolean player2Turn;
 
+    
     //Variable used to save the current players turn
     private int savedPlayerTurn;
 
+    
+    //GUI JFrame that has the board
+    private JFrame gameBoardFrame;
+    
+    
     //Constructor --------------------------------------
-    public GameScene() {
+    public GameScene(JFrame boardFrame_) {
+        gameBoardFrame = boardFrame_;
         savedPlayerTurn = 1;
         player2Turn = false;
     }

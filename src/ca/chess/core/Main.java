@@ -5,7 +5,7 @@ import ca.chess.errors.CriticalSystemErrorException;
 public class Main {
 
     public static void main(String[] args) throws CriticalSystemErrorException {
-
+        
         GameManager manager = new GameManager();
 
         //If the GameManager fails to initialize anything, lets not run the program...

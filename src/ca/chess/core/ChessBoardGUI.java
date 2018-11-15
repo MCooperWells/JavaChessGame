@@ -21,7 +21,7 @@ public class ChessBoardGUI extends JPanel {
     
     //The array of buttons for the game
     private JButton button[][] = new JButton[8][8];
-
+    
     //Constructor
     public ChessBoardGUI() {
         
@@ -67,6 +67,14 @@ public class ChessBoardGUI extends JPanel {
                 
                 //Add the button to the panel
                 insidePanel.add(button[j][i]);
+                 
+                button[j][i].addActionListener(new ActionListener()
+                {
+                    @Override
+                    public void actionPerformed(ActionEvent ae){
+                        System.out.println("Space was " );
+                    }
+                });
                 
                 //Try adding the pictures to the images
                 try{                    

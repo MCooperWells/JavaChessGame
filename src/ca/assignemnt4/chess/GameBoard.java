@@ -1,6 +1,6 @@
-package ca.chess.core;
+package ca.assignemnt4.chess;
 
-import ca.chess.pieces.ChessPiece;
+import ca.assignment4.Pieces.ChessPiece;
 
 public class GameBoard {
 
@@ -16,39 +16,12 @@ public class GameBoard {
 
         //loop through the size of the player and for each location in the array (there are 16 pieces per player)
         //add each piece to the board
-        for (int i = 0; i < _loadedPieces.length; i++) {
+        for (int i = 0; i < _loadedPieces.length; i++) 
+        {
             //Add the piece of player 1, index "i" to the board based on that pieces internal position
             //This internal position is set in the game manager class
             pieces[_loadedPieces[i].getPosition()[0]][_loadedPieces[i].getPosition()[1]] = _loadedPieces[i]; 
         }
-    }
-
-    //Print out the board, by looping through all 8 rows and 8 columns (nested for loops)
-    public void PrintBoard() {
-        //Print out the top row of square locations
-        System.out.println("    0    1    2    3    4    5    6    7");
-        System.out.println("  |---------------------------------------|");
-
-        //Nested For Loop
-        for (int i = 7; i > -1; i--) {
-            System.out.print(i + " ");
-            for (int j = 0; j < 8; j++) {
-
-                //if the location in the board array is not null, print out the short hand version of the pieces name
-                if (pieces[j][i] != null) {
-                    System.out.print("| " + pieces[j][i].getName() + " ");
-                } //Otherwise, that spot is empty so print an empty space
-                else {
-                    System.out.print("|    ");
-                }
-            }
-            System.out.println("| " + i);
-            System.out.println("  |---------------------------------------|");
-        }
-
-        //Finally, print out the bottom row of square locations
-        System.out.println("    0    1    2    3    4    5    6    7");
-
     }
 
     //When moving the piece, first call the internal function of that piece so it knows where it is located on the board and then
@@ -58,7 +31,28 @@ public class GameBoard {
         pieces[xNew][yNew] = pieces[xCurrent][yCurrent];
         pieces[xCurrent][yCurrent] = null;
     }
-
+    
+    //Check to see if the player has won!
+    public boolean CheckForWin(int otherPlayer)
+    {
+        //Loop through all the pieces and check to see if the other player still has their King
+        for (int i = 7; i > -1; i--) 
+        {
+            for (int j = 0; j < 8; j++) 
+            {
+                if(pieces[j][i] != null && pieces[j][i].getPieceType() == 6 && pieces[j][i].playerNum == otherPlayer)
+                {
+                    //If they do, return true and the game keeps going
+                    //System.out.println("Player " + otherPlayer + " still has their King. Game continues");
+                    return false;
+                }
+            }
+        }
+        //if the player does not have a king, then the game ends
+        System.out.println("Player " + otherPlayer + " has lost their king. Game over!");
+        return true;
+    }
+    
     //Called when checking if there are any pieces in between the current location of the piece and it's destination
     public boolean CheckInBetween(int xCurrent, int yCurrent, int xNew, int yNew, int playerTurn) {
         //Switch on the piece type. Need to check which piece is being moved 

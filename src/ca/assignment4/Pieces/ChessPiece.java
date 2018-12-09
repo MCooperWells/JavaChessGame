@@ -1,4 +1,4 @@
-package ca.chess.pieces;
+package ca.assignment4.Pieces;
 
 public abstract class ChessPiece {
 	

@@ -1,4 +1,4 @@
-package ca.chess.pieces;
+package ca.assignment4.Pieces;
 
 public class Pawn extends ChessPiece {
     int compareY = 0;
@@ -27,25 +27,28 @@ public class Pawn extends ChessPiece {
         if(playerNum == _playerTurn)
         {
             int deltaY = _newY - y;
-
+            int deltaX = Math.abs(_newX - x);
+            
             //if it is the first turn, then the pawn could move forward 1 or 2 spots
             if(firstTurn)
             {     
-            	//if it is player 1's turn, then the different between the new Y and old one has to be positive
-            	 boolean value = (x == _newX && deltaY == (compareY * 1) || x == _newX && deltaY == (compareY * 2));
-            	 if(value)
-            	 {
-            		 firstTurn = false;
-            		 return true;
-            	 }
-            	 else
-            		 return false;
+                //if it is player 1's turn, then the different between the new Y and old one has to be positive
+                boolean value = (x == _newX && deltaY == (compareY * 1) || x == _newX && deltaY == (compareY * 2) || deltaX == 1 && deltaY == (compareY * 1));
+                if (value) {
+                    firstTurn = false;
+                    return true;
+                } 
+                else {
+                    return false;
+                }
             }
                
-        
             //If it is not the first turn, then only allow the pawn to move forward 1 spot
             else
-                return (x == _newX && deltaY == (compareY * 1));
+            {
+                //If the move was in a straight line or the move was one step to the left or right, this will return true
+                return(x == _newX && deltaY == (compareY * 1) || deltaX == 1 && deltaY == (compareY * 1));
+            }
         }
         else
             return false;

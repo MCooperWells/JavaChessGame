@@ -27,9 +27,15 @@ public class ChessDataBase {
             //Create player score table
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS player_ranking (player_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, "
             + "player_wins INT, player_loses INT)");
+            
+            //Create game info table
+             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS game_information (game_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT, "
+            + "player_1_name VARCHAR(32) NOT NULL, player_2_name VARCHAR(32) NOT NULL, game_winner INT, game_start_time DATETIME, "
+            + "game_end_time DATETIME)");
+            
         }
         catch(SQLException ex) {
-            System.out.println(ex.getMessage());
+            System.out.println("NewTableCreation() Error " + ex.getErrorCode() + " " + ex.getMessage());
         }
     }
 
@@ -42,10 +48,30 @@ public class ChessDataBase {
             stmt.executeUpdate("INSERT INTO player_ranking (player_wins, player_loses) VALUES (0, 0)");
         }
         catch(SQLException ex) {          
-            System.out.println("Error " + ex.getErrorCode() + " " + ex.getMessage());
+            System.out.println("InserNewData() Error " + ex.getErrorCode() + " " + ex.getMessage());
         }
     }
     
+    public int AddGameInfo(String p1name, String p2name) throws SQLException
+    {
+        int gameID = -1;
+        
+        try(Statement stmt = con.createStatement()) {
+            //Create game info table
+            stmt.executeUpdate("INSERT INTO game_information (player_1_name, player_2_name, game_winner, game_start_time) VALUES " 
+                    + "('" + p1name + "', '" + p2name + "', 0, CURRENT_TIMESTAMP)");
+            
+            ResultSet rs = stmt.executeQuery("SELECT game_id FROM game_information");
+            while(rs.next())
+            {
+                gameID = rs.getInt("game_id");
+            }
+        }
+        catch(SQLException ex) {
+            System.out.println("AddGameInfo() Error " + ex.getErrorCode() + " " + ex.getMessage());
+        }
+        return gameID;
+    }
     
     public int GetPlayerID(String user_email)
     {
@@ -53,7 +79,7 @@ public class ChessDataBase {
         try(Statement stmt = con.createStatement()) 
         {
             try (ResultSet rs = stmt.executeQuery("SELECT * FROM player_information "
-                    + "WHERE player_email=" + user_email)) 
+                    + "WHERE player_email='" + user_email + "'")) 
             {
                 if (rs.next()) {
                     playerID = rs.getInt("player_id");
@@ -65,7 +91,7 @@ public class ChessDataBase {
             }
         }
         catch(SQLException ex) {          
-            System.out.println("Error " + ex.getErrorCode() + " " + ex.getMessage());
+            System.out.println("GetPlayerID() Error " + ex.getErrorCode() + " " + ex.getMessage());
         }
         return playerID;
     }
@@ -88,7 +114,7 @@ public class ChessDataBase {
             }
         }
         catch(SQLException ex) {          
-            System.out.println("Error " + ex.getErrorCode() + " " + ex.getMessage());
+            System.out.println("GetWins() Error " + ex.getErrorCode() + " " + ex.getMessage());
         }
         return playerWins;
     }
@@ -111,20 +137,30 @@ public class ChessDataBase {
             }
         }
         catch(SQLException ex) {          
-            System.out.println("Error " + ex.getErrorCode() + " " + ex.getMessage());
+            System.out.println("GetLoses() Error " + ex.getErrorCode() + " " + ex.getMessage());
         }
         return playerLoses;
     }
-    
-    
+ 
     
     public void updatePlayerScore(int user_id, int gamesWon, int gamesLost)
     {
         try(Statement stmt = con.createStatement()) 
         {
             stmt.executeUpdate("UPDATE player_ranking SET player_wins=" + gamesWon + ", player_loses=" + gamesLost + " WHERE player_id=" + user_id);                  
-            System.out.println("Score Updated!");
-               
+            System.out.println("Score Updated!");  
+        }
+        catch(SQLException ex) {          
+            System.out.println("Error " + ex.getErrorCode() + " " + ex.getMessage());
+        }
+    }
+    
+    public void updateGameScore(int gameID, int playerWinner)
+    {
+        try(Statement stmt = con.createStatement()) 
+        {
+            stmt.executeUpdate("UPDATE game_information SET game_winner=" + playerWinner + ", game_end_time=CURRENT_TIMESTAMP WHERE game_id=" + gameID);                  
+            System.out.println("Score Updated!");  
         }
         catch(SQLException ex) {          
             System.out.println("Error " + ex.getErrorCode() + " " + ex.getMessage());
@@ -137,35 +173,37 @@ public class ChessDataBase {
         try (Statement stmt = con.createStatement()) 
         {
             //Try and find the input email 
-            try (ResultSet rs = stmt.executeQuery("SELECT * FROM player_information "
-                    + "WHERE player_email=" + user_email)) 
+            try (ResultSet rs = stmt.executeQuery("SELECT * FROM player_information")) 
             {
                 //Move the cursor to that line of 
-                if(rs.next()) 
+                while(rs.next()) 
                 {
-                    String savedPassword = rs.getString("player_email");
+                    String savedEmail = rs.getString("player_email");
                     
-                    if(savedPassword.equals(user_password))
+                    if(savedEmail.equals(user_email))
                     {
-                        System.out.println("Password matches saved password");
-                        return true;
-                    }
-                    else
-                    {
-                        System.out.println("Error, password mismatch");
-                        return false;
+                        String savedPassword = rs.getString("player_password");
+                        if(savedPassword.equals(user_password))
+                        {
+                            System.out.println("Password matches saved password");
+                            return true;
+                        }
+                        else
+                        {
+                            System.out.println("Error, password mismatch");
+                            return false;
+                        }
                     }
                 }
-                else
-                {
-                    insertNewData(user_name, user_email, user_password);
-                    System.out.println("New User found! Information saved");
-                    return true;
-                }
+
+                //If the user email was never found, then add the user as a new member
+                insertNewData(user_name, user_email, user_password);
+                System.out.println("New User found! Information saved");
+                return true;
             }
         }
         catch(SQLException ex) {          
-            System.out.println("Error " + ex.getErrorCode() + " " + ex.getMessage());
+            System.out.println("PasswordCheck() Error " + ex.getErrorCode() + " " + ex.getMessage());
             return false;
         }
     }

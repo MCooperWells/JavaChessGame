@@ -70,13 +70,19 @@ public class ChessBoardGUI extends JPanel {
     JTextField emailTextField = new JTextField("");    
     JTextField passwordTextField = new JTextField("");
     
+    //Player information for the database
     int player1ID;
     int player1Wins;
     int player1Loses;
-    String player1User;
+    String player1Email;
+    String player1Name;
     int player2ID;
     int player2Wins;
     int player2Loses;
+    String player2Name;
+    
+    //Game ID
+    int gameID;
     
     //Variables -----------------------------------------
     //This will be the main gameboard, instantiated below
@@ -109,14 +115,17 @@ public class ChessBoardGUI extends JPanel {
     //Create a new scanner to take in Input
     Scanner scanText = new Scanner(System.in);
     int[] positionInput = new int[4];
-
+    
     //The array of buttons for the game
     private JButton button[][] = new JButton[8][8];
     
     //Create a JToolBar that will contain game options.
     private JToolBar tools = new JToolBar();
     //10 different buttons for loading games. Button 0 will load the default mode and 1-9 will load saved games
-    private JButton optionButton[] = new JButton[10];
+    private JButton[] LoadButtons = new JButton[9];
+    private JButton[] SaveButtons = new JButton[9];
+    private JButton newGameButton;
+    private JButton quitButton;
     
     //Constructor
     public ChessBoardGUI() {
@@ -266,20 +275,23 @@ public class ChessBoardGUI extends JPanel {
                     //Start checking the database
                     if(playerNum == 1 && InsertPlayerInformation(tempName, tempEmail, tempPassword))
                     {
-                        player1User = tempEmail;
+                        player1Email = tempEmail;
+                        player1Name = tempName;
                         player1ID = dbCon.GetPlayerID(tempEmail);
                         player1Wins = dbCon.getPlayerWins(player1ID);
                         player1Loses = dbCon.getPlayerLoses(player1ID);
                         initComponents1(2);
                     }
                     //Check that player1 isn't equal to player 2
-                    else if(!player1User.equals(tempEmail) && playerNum == 2)
+                    else if(!player1Email.equals(tempEmail) && playerNum == 2)
                     {
                         if(InsertPlayerInformation(tempName, tempEmail, tempPassword))
                         {
                             player2ID = dbCon.GetPlayerID(tempEmail);
+                            player2Name = tempName;
                             player2Wins = dbCon.getPlayerWins(player2ID);
                             player2Loses = dbCon.getPlayerLoses(player2ID);
+                            SaveGameState(player1Name, player2Name);
                             initComponents2();
                         }
                     }
@@ -314,6 +326,20 @@ public class ChessBoardGUI extends JPanel {
         //Catch statement
         catch (SQLException ex){
             System.out.println("ConnectToDataBase() Error " + ex.getErrorCode() + " " + ex.getMessage());
+            return false;
+        }
+    }
+    
+    private boolean SaveGameState(String p1Name, String p2Name)
+    {
+        gameID = -1;
+         try{  //Try and add the game info to the table    
+            gameID = dbCon.AddGameInfo(p1Name, p2Name);
+            return (gameID >= 0);
+        }
+        //Catch statement
+        catch (SQLException ex){
+            System.out.println("SaveGameState() Error " + ex.getErrorCode() + " " + ex.getMessage());
             return false;
         }
     }
@@ -456,62 +482,98 @@ public class ChessBoardGUI extends JPanel {
         textLog.setHorizontalAlignment(JTextField.LEFT);
         this.add(textLog, BorderLayout.SOUTH);
 
-        //Setup the new Game button to always be new game
-        optionButton[0] = new JButton("New Game");
-        tools.add(optionButton[0]);
-        optionButton[0].addActionListener(new ActionListener() {
+        
+        
+        /*  private JButton[] LoadButtons = new JButton[9];
+            private JButton[] SaveButtons = new JButton[9];
+            private JButton newGameButton;
+            private JButton quitButton;*/
+        
+        tools.setFloatable(false);
+        tools.setLayout(new GridLayout(2, 10));
+        this.add(tools, BorderLayout.NORTH);
+        
+        //Setup the new Game button 
+        newGameButton = new JButton("New Game");
+        tools.add(newGameButton);
+        newGameButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                JButton btn = (JButton) e.getSource();
                 //This button will always act as a new game button and will by default load a new game
                 try { 
                         LoadGame(0);
-                } catch (IOException e1) {
+                } 
+                catch (IOException e1) {
                     System.out.println(e1.getMessage());
                 }
             }
         });
         
-        //Adds option buttons to the JToolbar
-        for (int i = 1; i < optionButton.length; i++) {
+        //Adds loading game buttons to the JToolbar
+        for (int i = 1; i < LoadButtons.length; i++) {
             //Give the button some text.
-            optionButton[i] = new JButton("LoadGame " + i);
+            LoadButtons[i] = new JButton("Load " + i);
             
             //Assign the button a client property
-            optionButton[i].putClientProperty("buttonNum", i);
-            tools.add(optionButton[i]);
+            LoadButtons[i].putClientProperty("buttonNum", i);
+            tools.add(LoadButtons[i]);
             
             //Add the action listener to the tool bar
-            optionButton[i].addActionListener(new ActionListener() {
+            LoadButtons[i].addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     JButton btn = (JButton) e.getSource();
                     try { 
-                        //If the game isn't running the button will load a game.
-                        if (!gameRunning) {
                             LoadGame((int)btn.getClientProperty("buttonNum"));
-                        }
-                        
-                        //If the game is running, then the buttons now act as a save game 
-                        else { 
-                            if(gameOver)
-                            {
-                                textLog.setText("The game is over, cannot save");
-                            }
-                            else {
-                                SaveGame((int)btn.getClientProperty("buttonNum"));
-                            }
-                        }
                     } 
-                    
                     catch (IOException e1) {
                         System.out.println(e1.getMessage());
                     }
                 }
             });
         }
-        tools.setFloatable(false);
-        this.add(tools, BorderLayout.NORTH);
+        
+        //Setup the new quit game button
+        quitButton = new JButton("Quit Game");
+        tools.add(quitButton);
+        quitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.exit(0);
+            }
+        });
+        
+        //Save game buttons
+        //Adds loading game buttons to the JToolbar
+        for (int i = 1; i < SaveButtons.length; i++) {
+            //Give the button some text.
+            SaveButtons[i] = new JButton("Save " + i);
+            
+            //Assign the button a client property
+            SaveButtons[i].putClientProperty("buttonNum", i);
+            tools.add(SaveButtons[i]);
+            
+            //Add the action listener to the tool bar
+            SaveButtons[i].addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    JButton btn = (JButton) e.getSource();
+                    try { 
+                        if(gameOver)
+                        {
+                            textLog.setText("The game has ended. You cannot save the game");
+                        }
+                        else {
+                            SaveGame((int)btn.getClientProperty("buttonNum"));
+                        }
+                    } 
+                    catch (IOException e1) {
+                        System.out.println(e1.getMessage());
+                    }
+                }
+            });
+        }
+        
         
         //starting from the top row (order that the buttons get added), the i is equal to the X-axis
         for (int i = 7; i > -1; i--) {
@@ -795,10 +857,6 @@ public class ChessBoardGUI extends JPanel {
         }
         //This should be moved.
         //Changes the text inside the buttons once the game is finished loading.
-        for(int i = 1; i < optionButton.length; i++){
-        	
-        	optionButton[i].setText("SaveGame " + i);
-        }
         gameRunning = true;
     }
 
@@ -938,6 +996,7 @@ public class ChessBoardGUI extends JPanel {
                 player2Loses += 1;
                 System.out.println("Current player 2 ID: " + player2ID);
                 dbCon.updatePlayerScore(player2ID, player2Wins, player2Loses);
+                dbCon.updateGameScore(gameID, 1);
                 gameOver = true;
             }
             playerTurn = 2;
@@ -948,6 +1007,7 @@ public class ChessBoardGUI extends JPanel {
                 dbCon.updatePlayerScore(player1ID, player1Wins, player1Loses );
                 player2Wins += 1;
                 dbCon.updatePlayerScore(player2ID, player2Wins, player2Loses);
+                dbCon.updateGameScore(gameID, 2);
                 gameOver = true;
             }
             playerTurn = 1;

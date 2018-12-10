@@ -730,6 +730,10 @@ public class ChessBoardGUI extends JPanel {
 
         try (BufferedReader in = new BufferedReader(new FileReader(fileToLoad))) {
 
+            //Set the game ID to be equal to the savead game ID
+            if(savedFile != 0)
+                gameID = Integer.parseInt(in.readLine());
+            
             //Check to see how many pieces were on the board for each player from the previous game 
             //Read in the 1st line of code, which will be the number of pieces to create
             int numPieces = Integer.parseInt(in.readLine());
@@ -916,7 +920,11 @@ public class ChessBoardGUI extends JPanel {
                         }
                     }
                 }
-
+                
+                //Save the game ID 
+                out.write(String.valueOf(gameID));
+                out.newLine();
+                
                 //Save the number of pieces on the board to the text file, first line of it
                 out.write(String.valueOf(numPieces));
                 out.newLine();
